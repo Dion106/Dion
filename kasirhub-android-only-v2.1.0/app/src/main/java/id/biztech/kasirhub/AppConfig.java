@@ -18,7 +18,7 @@ public final class AppConfig {
     public String printerHost() { return p.getString("printerHost", ""); }
     public void printerHost(String v) { p.edit().putString("printerHost", v == null ? "" : v.trim()).apply(); }
     public int printerPort() { return p.getInt("printerPort", 9100); }
-    public void printerPort(int v) { p.edit().putInt("printerPort", v); }
+    public void printerPort(int v) { p.edit().putInt("printerPort", v).apply(); }
     public String bluetoothMac() { return p.getString("bluetoothMac", ""); }
     public void bluetoothMac(String v) { p.edit().putString("bluetoothMac", v == null ? "" : v.trim()).apply(); }
     public boolean alarmEnabled() { return p.getBoolean("alarm", true); }
