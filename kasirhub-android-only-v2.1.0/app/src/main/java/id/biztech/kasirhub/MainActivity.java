@@ -6,18 +6,15 @@ import android.content.*;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.*;
-import android.provider.Settings;
-import android.text.TextUtils;
 import android.webkit.*;
 import android.widget.*;
-import android.view.*;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import fi.iki.elonen.NanoHTTPD;
 import java.net.*;
 import java.util.*;
 
-public class MainActivity {
+public class MainActivity extends Activity {
     private AppConfig cfg; private LocalHubServer server; private WebView web; private TextView status,ip;
     private ValueCallback<Uri[]> fileCallback;
     @Override public void onCreate(Bundle b){super.onCreate(b);cfg=new AppConfig(this);requestPerms();
