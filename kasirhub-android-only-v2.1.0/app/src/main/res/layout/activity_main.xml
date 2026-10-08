@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent">
+    <LinearLayout android:padding="24dp" android:orientation="vertical"
+        android:layout_width="match_parent" android:layout_height="wrap_content">
+        <TextView android:text="KasirHub POS" android:textSize="30sp" android:textStyle="bold"
+            android:textColor="#173332" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+        <TextView android:text="Android Offline • HP sebagai Local Server" android:textSize="15sp"
+            android:textColor="#60736f" android:layout_marginTop="5dp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+        <TextView android:id="@+id/ip" android:text="Local Server: -" android:textSize="17sp" android:textStyle="bold"
+            android:layout_marginTop="20dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+        <TextView android:id="@+id/roleHelp" android:text="Pilih mode perangkat." android:textSize="14sp"
+            android:layout_marginTop="5dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+        <Spinner android:id="@+id/mode" android:layout_marginTop="18dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+        <Spinner android:id="@+id/station" android:layout_marginTop="12dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+        <EditText android:id="@+id/hubUrl" android:hint="URL Server Lokal, mis. http://192.168.4.1:8787"
+            android:inputType="textUri" android:layout_marginTop="12dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+        <EditText android:id="@+id/printerHost" android:hint="Printer Wi-Fi/LAN IP (opsional)"
+            android:inputType="textUri" android:layout_marginTop="12dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+        <EditText android:id="@+id/printerPort" android:hint="Port printer (9100)" android:inputType="number"
+            android:layout_marginTop="8dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+        <EditText android:id="@+id/bluetoothMac" android:hint="MAC printer Bluetooth (opsional)"
+            android:layout_marginTop="8dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+        <Button android:id="@+id/save" android:text="Simpan & Jalankan" android:layout_marginTop="18dp"
+            android:layout_width="match_parent" android:layout_height="wrap_content"/>
+        <Button android:id="@+id/open" android:text="Buka Aplikasi" android:layout_marginTop="10dp"
+            android:layout_width="match_parent" android:layout_height="wrap_content"/>
+        <Button android:id="@+id/copy" android:text="Salin URL Server" android:layout_marginTop="10dp"
+            android:layout_width="match_parent" android:layout_height="wrap_content"/>
+        <TextView android:id="@+id/status" android:text="Belum dijalankan" android:textSize="15sp"
+            android:layout_marginTop="18dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+    </LinearLayout>
+</ScrollView>
