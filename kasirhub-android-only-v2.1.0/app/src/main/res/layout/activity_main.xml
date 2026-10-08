@@ -21,7 +21,7 @@
             android:layout_marginTop="8dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
         <EditText android:id="@+id/bluetoothMac" android:hint="MAC printer Bluetooth (opsional)"
             android:layout_marginTop="8dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
-        <Button android:id="@+id/save" android:text="Simpan & Jalankan" android:layout_marginTop="18dp"
+        <Button android:id="@+id/save" android:text="Simpan &amp; Jalankan" android:layout_marginTop="18dp"
             android:layout_width="match_parent" android:layout_height="wrap_content"/>
         <Button android:id="@+id/open" android:text="Buka Aplikasi" android:layout_marginTop="10dp"
             android:layout_width="match_parent" android:layout_height="wrap_content"/>
