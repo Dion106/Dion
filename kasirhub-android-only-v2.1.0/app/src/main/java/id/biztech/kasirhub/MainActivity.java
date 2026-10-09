@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.*;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.view.View;
 import android.os.*;
 import android.webkit.*;
 import android.widget.*;
