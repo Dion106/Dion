@@ -13,7 +13,6 @@ import fi.iki.elonen.NanoHTTPD;
 import org.json.JSONObject;
 import java.io.*;
 import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,7 +37,7 @@ public class LocalHubServer extends NanoHTTPD {
     }
 
     private JSONObject body(IHTTPSession session) throws Exception {
-        Map<String,String> files = new HashMap<>();
+        Map<String, String> files = new HashMap<>();
         session.parseBody(files);
         return new JSONObject(files.getOrDefault("postData", "{}"));
     }
@@ -157,7 +156,7 @@ public class LocalHubServer extends NanoHTTPD {
             WifiManager manager = (WifiManager) ctx.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
             String ip = Formatter.formatIpAddress(manager.getConnectionInfo().getIpAddress());
             if (ip != null && !ip.isEmpty() && !"0.0.0.0".equals(ip)) return ip;
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) { }
         return "127.0.0.1";
     }
 
@@ -197,19 +196,18 @@ header{padding:14px 18px;background:#fff;border-bottom:1px solid #e2ebe8;display
 .price{font-size:17px;font-weight:700;color:#1f6e66}
 .btn{border:0;border-radius:10px;padding:11px 14px;background:#2f8b7f;color:#fff;font-weight:700}
 .btn.alt{background:#fff;color:#2f8b7f;border:1px solid #2f8b7f}
-.input{width:100%;padding:12px;border:1px solid #cedad6;border-radius:10px;margin:6px 0 10px;font-size:16px}
+.input{box-sizing:border-box;width:100%;padding:12px;border:1px solid #cedad6;border-radius:10px;margin:6px 0 10px;font-size:16px}
 .row{display:flex;justify-content:space-between;gap:10px;align-items:center}
 .small{font-size:13px;color:#6b7b78}
 .status{background:#edf5f3;padding:10px;border-radius:10px;margin:8px 0}
-@media(max-width:700px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.wrap{padding:10px}}
+@media(max-width:700px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.wrap{padding:10px}.pname{font-size:16px}}
 </style>
 """;
     }
 
     private String loginPage() {
-        return """
-<html><head>""" + css() + """
-</head><body><div class="wrap" style="max-width:480px;margin-top:40px">
+        String page = """
+<html><head>@@CSS@@</head><body><div class="wrap" style="max-width:480px;margin-top:40px">
 <div class="hero"><h1>KasirHub POS</h1><div>Login Station • Offline Local</div></div>
 <div class="panel">
 <input id="u" class="input" placeholder="Username">
@@ -220,30 +218,30 @@ header{padding:14px 18px;background:#fff;border-bottom:1px solid #e2ebe8;display
 <script>
 async function go(){
  const r=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},
- body:JSON.stringify({username:u.value,password:p.value})}).then(x=>x.json());
- if(!r.success){m.textContent='Username atau password salah';return;}
+ body:JSON.stringify({username:document.getElementById('u').value,password:document.getElementById('p').value})}).then(x=>x.json());
+ if(!r.success){document.getElementById('m').textContent='Username atau password salah';return;}
  location.href=r.role==='manager'?'/manager':'/station?station='+encodeURIComponent(r.role);
 }
 </script></body></html>
 """;
+        return page.replace("@@CSS@@", css());
     }
 
     private String stationPage(String station) {
         String title = "cashier".equals(station) ? "Kasir" :
                 "kitchen".equals(station) ? "Dapur" :
                 "bar".equals(station) ? "Mini Bar" :
-                "souvenir".equals(station) ? "Souvenir" : "Station";
-        String unseen = "cashier".equals(station) ? "true" : "false";
-        return """
-<html><head>""" + css() + """
-</head><body><header><b>KasirHub • """ + esc(title) + """</b>
+                "souvenir".equals(station) ? "Souvenir" :
+                "manager".equals(station) ? "Manager" : "Station";
+        String page = """
+<html><head>@@CSS@@</head><body><header><b>KasirHub • @@TITLE@@</b>
 <button class="btn alt" onclick="location.href='/login'">Keluar</button></header>
-<div class="wrap"><div class="hero"><h2>""" + esc(title) + """</h2>
+<div class="wrap"><div class="hero"><h2>@@TITLE@@</h2>
 <div>Order realtime • alarm aktif untuk order yang belum dilihat.</div></div>
 <div id="list" class="grid"></div></div>
 <script>
-const st='""" + esc(station) + """';
-const cash= """ + unseen + """;
+const st=@@STATION_JSON@@;
+const cash=@@CASH@@;
 let known=new Set();
 function beep(){
  try{
@@ -263,10 +261,10 @@ async function load(){
  document.getElementById('list').innerHTML=a.map(o=>{
    let items=o.items.map(i=>i.qty+'× '+i.name).join('<br>');
    let buttons=cash?
-     '<button class="btn" onclick="seen(\\''+o.order_no+'\\')">👀 Lihat</button> '+
-     '<button class="btn alt" onclick="pay(\\''+o.order_no+'\\',\\''+(o.payment_method||'cashier')+'\\')">✓ Lunas</button>':
-     '<button class="btn" onclick="setst(\\''+o.order_no+'\\',\\'processing\\')">Mulai Proses</button> '+
-     '<button class="btn alt" onclick="setst(\\''+o.order_no+'\\',\\'done\\')">Selesai</button>';
+     '<button class="btn" onclick="seen(&#39;'+o.order_no+'&#39;)">Lihat</button> '+
+     '<button class="btn alt" onclick="pay(&#39;'+o.order_no+'&#39;,&#39;'+(o.payment_method||'cashier')+'&#39;)">Lunas</button>':
+     '<button class="btn" onclick="setst(&#39;'+o.order_no+'&#39;,&#39;processing&#39;)">Mulai Proses</button> '+
+     '<button class="btn alt" onclick="setst(&#39;'+o.order_no+'&#39;,&#39;done&#39;)">Selesai</button>';
    return '<div class="card"><div class="row"><b>#'+o.order_no+
    '</b><span class="price">Rp'+Number(o.total).toLocaleString('id-ID')+'</span></div>'+
    '<div class="small">'+o.table_code+' • '+(o.customer_name||'Tamu')+'</div>'+
@@ -274,22 +272,26 @@ async function load(){
    '<div>'+items+'</div><div style="margin-top:10px">'+buttons+'</div></div>';
  }).join('')||'<div class="panel">Belum ada order.</div>';
 }
-async function seen(n){await fetch('/api/orders/'+n+'/seen',{method:'POST'});known.add(n);load()}
-async function pay(n,m){await seen(n);await fetch('/api/orders/'+n+'/payment',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({method:m})});load()}
-async function setst(n,s){await fetch('/api/orders/'+n+'/station',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({station:st,status:s})});load()}
+async function seen(n){await fetch('/api/orders/'+encodeURIComponent(n)+'/seen',{method:'POST'});known.add(n);load()}
+async function pay(n,m){await seen(n);await fetch('/api/orders/'+encodeURIComponent(n)+'/payment',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({method:m})});load()}
+async function setst(n,s){await fetch('/api/orders/'+encodeURIComponent(n)+'/station',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({station:st,status:s})});load()}
 load();setInterval(load,2200);
 </script></body></html>
 """;
+        return page.replace("@@CSS@@", css())
+                .replace("@@TITLE@@", esc(title))
+                .replace("@@STATION_JSON@@", JSONObject.quote(station))
+                .replace("@@CASH@@", "cashier".equals(station) ? "true" : "false");
     }
 
     private String customerPage(String table) {
         JSONObject t = db.table(table);
-        return """
-<html><head>""" + css() + """
-</head><body><header><b>""" + esc(db.setting("business_name")) + """</b>
-<span>Meja """ + esc(t.optString("name", table)) + """</span></header>
+        if (t == null) t = new JSONObject();
+        String page = """
+<html><head>@@CSS@@</head><body><header><b>@@BUSINESS@@</b>
+<span>Meja @@TABLE_NAME@@</span></header>
 <div class="wrap"><div class="hero"><div class="small">ORDER DARI MEJA</div>
-<h1>""" + esc(t.optString("name", table)) + """</h1><div>""" + esc(t.optString("area", "Indoor")) + """</div></div>
+<h1>@@TABLE_NAME@@</h1><div>@@AREA@@</div></div>
 <div class="row"><input id="q" class="input" style="margin-right:8px" placeholder="Cari makanan, minuman, souvenir..." oninput="draw()">
 <button class="btn alt" onclick="location.reload()">↻</button></div>
 <div id="cats" style="margin:6px 0"></div><div id="plist" class="grid"></div>
@@ -302,21 +304,22 @@ load();setInterval(load,2200);
 let P=[],C=[],cat='Semua';
 function draw(){
  let q=(document.getElementById('q').value||'').toLowerCase();
- let cats=['Semua',...new Set(P.map(x=>x.category))];
- document.getElementById('cats').innerHTML=cats.map(c=>'<button class="btn alt" style="margin:3px" onclick="cat='+JSON.stringify(c)+';draw()">'+c+'</button>').join('');
- let a=P.filter(x=>(cat==='Semua'||x.category===cat)&&(!q||x.name.toLowerCase().includes(q)));
+ let cats=['Semua',...new Set(P.map(x=>x.category||'Lainnya'))];
+ document.getElementById('cats').innerHTML=cats.map(c=>'<button class="btn alt" style="margin:3px" data-category="'+String(c).replace(/"/g,'&quot;')+'">'+c+'</button>').join('');
+ document.querySelectorAll('[data-category]').forEach(b=>b.onclick=()=>{cat=b.getAttribute('data-category');draw()});
+ let a=P.filter(x=>(cat==='Semua'||x.category===cat)&&(!q||String(x.name).toLowerCase().includes(q)));
  document.getElementById('plist').innerHTML=a.map(p=>{
    let image=p.image_file?'<img class="pimg" src="/media/product/'+p.id+'">':'<div class="pimg" style="display:grid;place-items:center;font-size:60px">'+(p.emoji||'🍽️')+'</div>';
    return '<div class="card">'+image+'<div class="pname">'+p.name+'</div><div class="small">'+(p.description||'')+'</div><div class="price">Rp'+Number(p.price).toLocaleString('id-ID')+'</div><button class="btn alt" style="width:100%" onclick="add('+p.id+')">Pesan</button></div>';
- }).join('');
+ }).join('')||'<div class="panel">Menu belum tersedia.</div>';
  document.getElementById('cart').innerHTML=C.map(x=>'<div class="row" style="padding:5px 0"><span>'+x.qty+'× '+x.name+'</span><span>Rp'+(x.qty*x.price).toLocaleString('id-ID')+'</span></div>').join('')||'<div class="small">Belum ada item.</div>';
 }
-function add(id){let p=P.find(x=>x.id==id),x=C.find(y=>y.product_id==id);x?x.qty++:C.push({product_id:p.id,name:p.name,price:p.price,qty:1,station:p.station,note:''});draw()}
+function add(id){let p=P.find(x=>x.id==id),x=C.find(y=>y.product_id==id);if(!p)return;x?x.qty++:C.push({product_id:p.id,name:p.name,price:Number(p.price),qty:1,station:p.station,note:''});draw()}
 async function send(){
  if(!C.length)return alert('Pilih menu terlebih dahulu');
  let n=document.getElementById('name').value,ph=document.getElementById('phone').value;
  localStorage.setItem('kh_name',n);localStorage.setItem('kh_phone',ph);
- let o=await fetch('/api/orders',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({table_code:'""" + esc(table) + """',customer_name:n,customer_phone:ph,payment_method:document.getElementById('pay').value,items:C})}).then(r=>r.json());
+ let o=await fetch('/api/orders',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({table_code:@@TABLE_JSON@@,customer_name:n,customer_phone:ph,payment_method:document.getElementById('pay').value,items:C})}).then(r=>r.json());
  if(!o.success)return alert(o.error||'Gagal');
  document.getElementById('msg').innerHTML='<b>Order '+o.order_no+' berhasil.</b><br><a href="/track?token='+encodeURIComponent(o.track_token)+'">Lihat status realtime</a>';
  C=[];draw();
@@ -324,15 +327,19 @@ async function send(){
 fetch('/api/products').then(r=>r.json()).then(x=>{P=x;document.getElementById('name').value=localStorage.getItem('kh_name')||'';document.getElementById('phone').value=localStorage.getItem('kh_phone')||'';draw()});
 </script></body></html>
 """;
+        return page.replace("@@CSS@@", css())
+                .replace("@@BUSINESS@@", esc(db.setting("business_name")))
+                .replace("@@TABLE_NAME@@", esc(t.optString("name", table)))
+                .replace("@@AREA@@", esc(t.optString("area", "Indoor")))
+                .replace("@@TABLE_JSON@@", JSONObject.quote(table));
     }
 
     private String trackPage(String token) {
-        return """
-<html><head>""" + css() + """
-</head><body><div class="wrap"><div class="hero"><h2 id="no">Memuat...</h2><div id="tbl">-</div></div>
+        String page = """
+<html><head>@@CSS@@</head><body><div class="wrap"><div class="hero"><h2 id="no">Memuat...</h2><div id="tbl">-</div></div>
 <div class="panel"><h3 id="st">-</h3><div id="items"></div><div class="row" style="margin-top:14px"><b>Total</b><b id="tot" class="price">Rp0</b></div></div></div>
 <script>
-const tk='""" + esc(token) + """';
+const tk=@@TOKEN_JSON@@;
 async function load(){
  let o=await fetch('/api/order-status?token='+encodeURIComponent(tk)).then(r=>r.json());
  if(!o.order_no){document.getElementById('st').textContent='Pesanan tidak ditemukan';return}
@@ -345,12 +352,12 @@ async function load(){
 load();setInterval(load,1500);
 </script></body></html>
 """;
+        return page.replace("@@CSS@@", css()).replace("@@TOKEN_JSON@@", JSONObject.quote(token));
     }
 
     private String managerPage() {
-        return """
-<html><head>""" + css() + """
-</head><body><header><b>KasirHub • Manager</b><button class="btn alt" onclick="location.href='/login'">Keluar</button></header>
+        String page = """
+<html><head>@@CSS@@</head><body><header><b>KasirHub • Manager</b><button class="btn alt" onclick="location.href='/login'">Keluar</button></header>
 <div class="wrap"><div class="hero"><h2>Dashboard Manager</h2><div>Produk • Meja • QR • Laporan</div></div>
 <div class="grid">
 <div class="panel"><h3>Tambah Produk</h3><input id="n" class="input" placeholder="Nama produk"><input id="p" class="input" type="number" placeholder="Harga">
@@ -359,20 +366,34 @@ load();setInterval(load,1500);
 <input id="f" class="input" type="file" accept="image/*"><button class="btn" onclick="saveP()">Simpan Produk</button></div>
 <div class="panel"><h3>Tambah Meja</h3><input id="tc" class="input" placeholder="Kode meja"><input id="tn" class="input" placeholder="Nama meja">
 <input id="ta" class="input" type="number" value="2"><input id="tr" class="input" placeholder="Area"><button class="btn" onclick="saveT()">Simpan Meja</button><div id="tl"></div></div>
-</div><div class="panel" style="margin-top:14px"><a class="btn" href="/report.csv">Export Laporan</a></div></div>
+</div><div class="panel" style="margin-top:14px"><a class="btn" href="/report.csv">Export Laporan CSV (bisa dibuka di Excel)</a></div></div>
 <script>
+function val(id){return document.getElementById(id).value}
 function b64(file){return new Promise(r=>{if(!file)return r('');let fr=new FileReader();fr.onload=()=>r(fr.result);fr.readAsDataURL(file)})}
-async function saveP(){let img=await b64(document.getElementById('f').files[0]);await fetch('/api/products',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:n.value,price:Number(p.value),station:s.value,category:c.value||'Lainnya',description:d.value,image_base64:img})});alert('Produk disimpan')}
-async function saveT(){await fetch('/api/tables',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code:tc.value,name:tn.value,capacity:Number(ta.value),area:tr.value||'Indoor'})});alert('Meja disimpan');loadT()}
-async function loadT(){let a=await fetch('/api/tables').then(r=>r.json());tl.innerHTML=a.map(x=>'<div class="status"><b>'+x.code+'</b> — '+x.name+' <a href="/qr.png?table='+encodeURIComponent(x.code)+'" target="_blank">QR</a></div>').join('')}
+async function saveP(){
+ let img=await b64(document.getElementById('f').files[0]);
+ let r=await fetch('/api/products',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:val('n'),price:Number(val('p')),station:val('s'),category:val('c')||'Lainnya',description:val('d'),image_base64:img})}).then(x=>x.json());
+ if(!r.success)return alert(r.error||'Gagal menyimpan produk');
+ alert('Produk disimpan');document.getElementById('n').value='';document.getElementById('p').value='';document.getElementById('d').value='';document.getElementById('f').value='';
+}
+async function saveT(){
+ let r=await fetch('/api/tables',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code:val('tc'),name:val('tn'),capacity:Number(val('ta')),area:val('tr')||'Indoor'})}).then(x=>x.json());
+ if(!r.success)return alert(r.error||'Gagal menyimpan meja');
+ alert('Meja disimpan');loadT();
+}
+async function loadT(){
+ let a=await fetch('/api/tables').then(r=>r.json());
+ document.getElementById('tl').innerHTML=a.map(x=>'<div class="status"><b>'+x.code+'</b> — '+x.name+' <a href="/qr.png?table='+encodeURIComponent(x.code)+'" target="_blank">QR</a> · <a href="/order?table='+encodeURIComponent(x.code)+'" target="_blank">Buka menu</a></div>').join('');
+}
 loadT();
 </script></body></html>
 """;
+        return page.replace("@@CSS@@", css());
     }
 
     private String esc(String s) {
         if (s == null) return "";
         return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
-                .replace(""", "&quot;").replace("'", "&#39;");
+                .replace("\"", "&quot;").replace("'", "&#39;");
     }
 }
